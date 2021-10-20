@@ -5,6 +5,8 @@
 #include <SDL_image.h>
 
 #include "SDLScene.h"
+#include "Pendulum.h"
+#include "Vec2.h"
 
 #include <iostream>
 
@@ -67,9 +69,22 @@ void SDLScene::GameLoop()
     // Event handler
 	SDL_Event e;
 
+    // Create pendulum
+    Pendulum pendulum(Vec2(256, 0), 256, 25, m_renderer);
+
+    // Time
+    double elapsedTime = 0.0f;
+    const double frameTime = 1.0f / 60.0f;     // Standardised frame time of 60fps
+    double previousTime = SDL_GetTicks();
+
 	// While application is running
 	while (!quit)
 	{
+        // Calculate time between previous and current frames
+        double currentTime = SDL_GetTicks();
+		double deltaTime = (currentTime - previousTime) / 1000.0f;
+		previousTime = currentTime;
+
 		// Handle events on queue
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -117,7 +132,7 @@ void SDLScene::GameLoop()
         }
 
         // Mouse button input
-        if (m_MMBdown)
+        /*if (m_MMBdown)
         {
             UpdateMousePosition();
             CalculateVelocity();
@@ -130,23 +145,26 @@ void SDLScene::GameLoop()
         {
             UpdateMousePosition();
             CalculateVelocity();
-        }
+        }*/
+
+        pendulum.update(deltaTime);
 
         // Clear screen
 		SDL_SetRenderDrawColor(m_renderer, 0x0, 0x0, 0x0, 0x0);
 		SDL_RenderClear(m_renderer);
 
-        // Update
-
-        // Draw
-
-
+        pendulum.draw();
 
         // Update screen
 		SDL_RenderPresent(m_renderer);
+
+        // Time between frames and quicker than standardised frame time
+        if (deltaTime < frameTime)
+		{
+			SDL_Delay((unsigned int)((frameTime - deltaTime) * 1000.0f));
+		}
+        elapsedTime += deltaTime;
 	}
-    // Destroy
-    
     Close();
 }
 
