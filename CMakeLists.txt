@@ -32,12 +32,10 @@ target_sources(${TargetName} PRIVATE
     ${PROJECT_SOURCE_DIR}/src/main.cpp
     ${PROJECT_SOURCE_DIR}/src/SDLScene.cpp
     ${PROJECT_SOURCE_DIR}/src/KeyboardManager.cpp
-    ${PROJECT_SOURCE_DIR}/src/Texture.cpp
     ${PROJECT_SOURCE_DIR}/src/Pendulum.cpp
     # .h
     ${PROJECT_SOURCE_DIR}/include/SDLScene.h
     ${PROJECT_SOURCE_DIR}/include/KeyboardManager.h
-    ${PROJECT_SOURCE_DIR}/include/Texture.h
     ${PROJECT_SOURCE_DIR}/include/Pendulum.h
     ${PROJECT_SOURCE_DIR}/include/Vec2.h
     # ...

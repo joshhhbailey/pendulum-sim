@@ -12,6 +12,9 @@
 #include <SDL2/SDL.h>
 
 #include "KeyboardManager.h"
+#include "Pendulum.h"
+
+#include <vector>
 
 class SDLScene
 {
@@ -22,33 +25,16 @@ class SDLScene
         void GameLoop();
         void Close();
 
-        void UpdateMousePosition();
-        void CalculateVelocity();
-
     private:
         SDL_Window* m_window = NULL;
         SDL_Renderer* m_renderer = NULL;
-
         KeyboardManager m_keyboard;
 
         const int m_SCREEN_SIZE = 512;
 
-        // Mouse position
-        int m_prevMouseX;
-        int m_prevMouseY;
-        int m_mouseX;
-        int m_mouseY;
-        float m_xVel;
-        float m_yVel;
-
-        // Mouse buttons
-        bool m_LMBdown = false;
-        bool m_MMBdown = false;
-        bool m_RMBdown = false;
-
-        // Debug
-        bool m_showGrid = false;
-        bool m_showVelocity = false;
+        std::vector<Pendulum> m_pendulums;
+        int m_maxPendulums = 30;
+        bool m_pause = false;
 };
 
 #endif // _SDL_SCENE_H_

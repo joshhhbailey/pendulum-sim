@@ -5,7 +5,6 @@
 #include <SDL_image.h>
 
 #include "SDLScene.h"
-#include "Pendulum.h"
 #include "Vec2.h"
 
 #include <iostream>
@@ -63,107 +62,95 @@ void SDLScene::GameLoop()
 {
     bool quit = false;
 
-    // Initialise mouse position
-    SDL_GetMouseState(&m_mouseX, &m_mouseY);
-
     // Event handler
 	SDL_Event e;
 
-    // Create pendulum
-    Pendulum pendulum(Vec2(256, 0), 256, 25, m_renderer);
+    // Create pendulums
+    for (int i = 0; i < m_maxPendulums; ++i)
+    {
+        Pendulum pendulum(Vec2(256, 0), 512 - (i * 16), 25, i * 8, m_renderer);
+        m_pendulums.push_back(pendulum);
+    }
 
     // Time
-    double elapsedTime = 0.0f;
-    const double frameTime = 1.0f / 60.0f;     // Standardised frame time of 60fps
-    double previousTime = SDL_GetTicks();
+    float elapsedTime = 0.0f;
+    const float frameTime = 1.0f / 60.0f;     // Standardised frame time of 60fps
+    Uint32 previousTime = SDL_GetTicks();
 
 	// While application is running
 	while (!quit)
 	{
         // Calculate time between previous and current frames
-        double currentTime = SDL_GetTicks();
-		double deltaTime = (currentTime - previousTime) / 1000.0f;
-		previousTime = currentTime;
+        Uint32 currentTime = SDL_GetTicks();
+        float deltaTime = (currentTime - previousTime) / 1000.0f;
+        previousTime = currentTime;
 
-		// Handle events on queue
-		while (SDL_PollEvent(&e) != 0)
-		{
-			if (e.type == SDL_QUIT)
-			{
-				quit = true;
-			}
-            /*if (e.type == SDL_MOUSEBUTTONDOWN)
+        // Handle events on queue
+        while (SDL_PollEvent(&e) != 0)
+        {
+            if (e.type == SDL_QUIT)
             {
-                if (e.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_LMBdown = true;
-                }
-                if (e.button.button == SDL_BUTTON_MIDDLE)
-                {
-                    m_MMBdown = true;
-                }
-                if (e.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_RMBdown = true;
-                }
+                quit = true;
             }
-            if (e.type == SDL_MOUSEBUTTONUP)
-            {
-                if (e.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_LMBdown = false;
-                }
-                if (e.button.button == SDL_BUTTON_MIDDLE)
-                {
-                    m_MMBdown = false;
-                }
-                if (e.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_RMBdown = false;
-                }
-            }*/
-		}
+        }
 
         // Keyboard input
         m_keyboard.Update();
+
+        // Quit
         if (m_keyboard.GetKeyDown(SDL_SCANCODE_ESCAPE))
         {
             quit = true;
         }
 
-        // Mouse button input
-        /*if (m_MMBdown)
+        // Pause
+        if (m_keyboard.GetKeyDown(SDL_SCANCODE_P))
         {
-            UpdateMousePosition();
-            CalculateVelocity();
+            if (!m_pause)
+            {
+                m_pause = true;
+            }
+            else
+            {
+                m_pause = false;
+            }
         }
-        else if (m_LMBdown)
+
+        // Reset
+        if (m_keyboard.GetKeyDown(SDL_SCANCODE_R))
         {
-            UpdateMousePosition();
+            for (int i = 0; i < m_pendulums.size(); ++i)
+            {
+                m_pendulums[i].reset(Vec2(256, 0), 512 - (16 * i), 25);
+            }
         }
-        else if (m_RMBdown)
+
+        if (!m_pause)
         {
-            UpdateMousePosition();
-            CalculateVelocity();
-        }*/
+            for (int i = 0; i < m_pendulums.size(); ++i)
+            {
+                m_pendulums[i].update(deltaTime);
+            }
 
-        pendulum.update(deltaTime);
+            // Clear screen
+            SDL_SetRenderDrawColor(m_renderer, 0x0, 0x0, 0x0, 0x0);
+            SDL_RenderClear(m_renderer);
 
-        // Clear screen
-		SDL_SetRenderDrawColor(m_renderer, 0x0, 0x0, 0x0, 0x0);
-		SDL_RenderClear(m_renderer);
+            for (int i = 0; i < m_pendulums.size(); ++i)
+            {
+                m_pendulums[i].draw();
+            }
 
-        pendulum.draw();
+            // Update screen
+            SDL_RenderPresent(m_renderer);
 
-        // Update screen
-		SDL_RenderPresent(m_renderer);
-
-        // Time between frames and quicker than standardised frame time
-        if (deltaTime < frameTime)
-		{
-			SDL_Delay((unsigned int)((frameTime - deltaTime) * 1000.0f));
-		}
-        elapsedTime += deltaTime;
+            // Time between frames and quicker than standardised frame time
+            if (deltaTime < frameTime)
+            {
+                SDL_Delay((unsigned int)((frameTime - deltaTime) * 1000.0f));
+            }
+            elapsedTime += deltaTime;
+        }
 	}
     Close();
 }
@@ -179,19 +166,5 @@ void SDLScene::Close()
     m_window = NULL;
 
     // Quit SDL subsystems
-    IMG_Quit();
     SDL_Quit();
-}
-
-void SDLScene::UpdateMousePosition()
-{
-    m_prevMouseX = m_mouseX;
-    m_prevMouseY = m_mouseY;
-    SDL_GetMouseState(&m_mouseX, &m_mouseY);
-}
-
-void SDLScene::CalculateVelocity()
-{
-    m_xVel = float(m_mouseX - m_prevMouseX);
-    m_yVel = float(m_mouseY - m_prevMouseY);
 }
