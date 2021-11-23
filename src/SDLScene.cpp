@@ -2,8 +2,6 @@
 /// @file SDLScene.cpp
 /// @brief Manages SDL scene and main game loop
 
-#include <SDL_image.h>
-
 #include "SDLScene.h"
 #include "Vec2.h"
 
@@ -44,14 +42,6 @@ bool SDLScene::Initialise()
             {
                 // Initialize renderer color
 				SDL_SetRenderDrawColor(m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-                // Initialize PNG loading
-				int imgFlags = IMG_INIT_PNG;
-				if (!(IMG_Init(imgFlags) & imgFlags))
-				{
-					std::cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << "\n";
-					success = false;
-				}
             }
         }
     }
