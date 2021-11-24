@@ -23,7 +23,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     find_package(SDL2 REQUIRED COMPONENTS main)
     include_directories(${SDL2_INCLUDE_DIRS} ${SDL2main_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
     # Link SDL2 packages
-    target_link_libraries(${TargetName} PRIVATE ${SDL2_LIBS})
+    target_link_libraries(${TargetName} PRIVATE ${SDL2_LIBRARY})
 
 # Windows specific setup
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
